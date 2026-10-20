@@ -1,0 +1,8 @@
+   {
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "West Bank" }, "geometry": { "type": "Point", "coordinates": [35.27, 31.95] } },
+    { "type": "Feature", "properties": { "name": "Gaza Strip" }, "geometry": { "type": "Point", "coordinates": [34.34, 31.39] } }
+    
+  ]
+}

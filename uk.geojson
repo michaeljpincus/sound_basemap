@@ -1,0 +1,10 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "England" },          "geometry": { "type": "Point", "coordinates": [-1.50, 52.80] } },
+    { "type": "Feature", "properties": { "name": "Scotland" },         "geometry": { "type": "Point", "coordinates": [-4.20, 56.80] } },
+    { "type": "Feature", "properties": { "name": "Wales" },            "geometry": { "type": "Point", "coordinates": [-3.70, 52.35] } },
+    { "type": "Feature", "properties": { "name": "Northern Ireland" }, "geometry": { "type": "Point", "coordinates": [-6.70, 54.65] } }
+    
+  ]
+}

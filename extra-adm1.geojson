@@ -1,0 +1,11 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "Northern Territory", "abbr": "NT" }, "geometry": { "type": "Point", "coordinates": [133.4, -19.5] } },
+    { "type": "Feature", "properties": { "name": "Australian Capital Territory", "abbr": "ACT" }, "geometry": { "type": "Point", "coordinates": [149.0, -35.5] } },
+    { "type": "Feature", "properties": { "name": "Hawai'i", "abbr": "HI" }, "geometry": { "type": "Point", "coordinates": [-157.10, 20.90] } },
+    { "type": "Feature", "properties": { "name": "Tibet", "abbr": "XZ" }, "geometry": { "type": "Point", "coordinates": [88.0, 31.5] } },
+    { "type": "Feature", "properties": { "name": "Amazonas", "abbr": "AM" }, "geometry": { "type": "Point", "coordinates": [-64.6, -4.2] } },
+    { "type": "Feature", "properties": { "name": "Punjab", "abbr": "PJ" }, "geometry": { "type": "Point", "coordinates": [75.33, 30.89] } }
+  ]
+}

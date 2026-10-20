@@ -1,0 +1,337 @@
+{
+  "version": 8,
+  "projection": { "type": "globe" },
+  "glyphs": "./fonts/{fontstack}/{range}.pbf",
+  "sprite": "./sprites/sprite",
+  "sources": {
+    "terrain": {
+      "type": "raster-dem",
+      "tiles": ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+      "encoding": "terrarium",
+      "tileSize": 256,
+      "maxzoom": 15,
+      "attribution": "Terrain: Mapzen/AWS Terrain Tiles"
+    },
+    "base": {
+      "type": "vector",
+      "url": "https://tiles.openfreemap.org/planet",
+      "attribution": "&copy; <a href=\"https://openfreemap.org\">OpenFreeMap</a> &copy; OpenMapTiles, data &copy; OpenStreetMap contributors"
+    },
+    "country-borders": {
+      "type": "geojson",
+      "data": "s",
+      "generateId": true
+    },
+    "state-borders": {
+      "type": "geojson",
+      "data": "stateborders.geojson",
+      "generateId": true
+    },
+    "roads": {
+      "type": "geojson",
+      "data": "roads.geojson",
+      "generateId": true
+    },
+    "territory-labels": {
+      "type": "geojson",
+      "data": "territories.geojson"
+    },
+    "hawaii-label": {
+      "type": "geojson",
+      "data": "hawaii.geojson"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": { "background-color": "#ffffff" }
+    },
+    {
+      "id": "hillshade",
+      "type": "hillshade",
+      "source": "terrain",
+      "paint": {
+        "hillshade-exaggeration": ["interpolate", ["linear"], ["zoom"], 3, 0.15, 8, 0.25, 12, 0.25],
+        "hillshade-shadow-color": "hsl(210, 8%, 65%)",
+        "hillshade-highlight-color": "#ffffff",
+        "hillshade-accent-color": "hsl(210, 8%, 78%)",
+        "hillshade-illumination-direction": 315
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "base",
+      "source-layer": "water",
+      "paint": { "fill-color": "#e9eaec" }
+    },
+    {
+      "id": "waterway",
+      "type": "line",
+      "source": "base",
+      "source-layer": "waterway",
+      "minzoom": 7,
+      "paint": {
+        "line-color": "#e9eaec",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 7, 0.4, 12, 1.5]
+      }
+    },
+    {
+      "id": "country-borders",
+      "type": "line",
+      "source": "base",
+      "source-layer": "boundary",
+      "filter": ["all", ["==", ["get", "admin_level"], 2], ["==", ["get", "maritime"], 0]],
+      "paint": { "line-color": "black", "line-width": 0.5 }
+    },
+    {
+      "id": "state-borders",
+      "type": "line",
+      "source": "state-borders",
+      "layout": {
+      "line-cap": "round"
+      },
+      "paint": {
+      "line-color": "#515050",
+      "line-width": 0.8,
+      "line-dasharray": [0, 3]
+      }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "base",
+      "source-layer": "transportation",
+      "minzoom": 1,
+      "filter": ["in", ["get", "class"], ["literal", ["motorway", "trunk", "primary"]]],
+      "paint": {
+        "line-color": "#e3e3e3",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.3, 10, 1]
+      }
+    },
+    {
+      "id": "streets-minor",
+      "type": "line",
+      "source": "base",
+      "source-layer": "transportation",
+      "minzoom": 12,
+      "filter": ["in", ["get", "class"], ["literal", ["secondary", "tertiary", "minor"]]],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#d9d9d9",
+        "line-width": ["interpolate", ["exponential", 1.4], ["zoom"], 12, 0.4, 16, 3, 20, 14]
+      }
+    },
+    {
+      "id": "streets-service",
+      "type": "line",
+      "source": "base",
+      "source-layer": "transportation",
+      "minzoom": 15,
+      "filter": ["==", ["get", "class"], "service"],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#e6e6e6",
+        "line-width": ["interpolate", ["exponential", 1.4], ["zoom"], 15, 0.5, 20, 6]
+      }
+    },
+    {
+      "id": "neighborhoods",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "minzoom": 7,
+      "filter": ["in", ["get", "class"], ["literal", ["suburb", "quarter", "neighbourhood"]]],
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Roboto Condensed Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.1,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 11, 10, 15, 13],
+        "text-max-width": 6,
+        "symbol-sort-key": ["coalesce", ["get", "rank"], 99]
+      },
+      "paint": {
+        "text-color": "hsla(0, 0%, 25%, 0.7)",
+        "text-halo-color": "hsla(0, 0%, 100%, 0.7)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "city-dots",
+      "type": "circle",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["all",
+        ["in", ["get", "class"], ["literal", ["city", "town"]]],
+        ["!=", ["get", "capital"], 2]
+      ],
+      "minzoom": 4,
+      "maxzoom": 9,
+      "paint": {
+        "circle-color": "#000000",
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.5, 8, 2.5, 12, 3],
+        "circle-stroke-color": "#ffffff",
+        "circle-stroke-width": 0.75
+      }
+    },
+    {
+      "id": "capital-stars",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["all",
+        ["in", ["get", "class"], ["literal", ["city", "town"]]],
+        ["==", ["get", "capital"], 2]
+      ],
+      "minzoom": 4,
+      "maxzoom": 9,
+      "layout": {
+        "icon-image": "star",
+        "icon-size": ["interpolate", ["linear"], ["zoom"], 4, 0.5, 8, 0.7],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "cities",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["in", ["get", "class"], ["literal", ["city", "town"]]],
+      "minzoom": 4,
+      "maxzoom": 14,
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Roboto Condensed Regular"],
+        "text-size": [
+          "interpolate", ["linear"], ["zoom"],
+          4,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 15, 8, 10],
+          8,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 19, 8, 12],
+          12, ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 22, 8, 14]
+        ],
+        "text-variable-anchor": ["top", "bottom", "left", "right"],
+        "text-radial-offset": 0.5,
+        "symbol-sort-key": ["coalesce", ["get", "rank"], 99]
+      },
+      "paint": {
+        "text-color": "hsla(0, 0%, 10%, 0.85)",
+        "text-halo-color": "hsla(0, 0%, 100%, 0.7)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "countries",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["==", ["get", "class"], "country"],
+      "maxzoom": 8,
+      "layout": {
+        "text-field": [
+          "let", "n", ["coalesce", ["get", "name:en"], ["get", "name"]],
+          ["match", ["var", "n"],
+            ["Palestinian Territories", "State of Palestine"], "Palestine",
+            ["T"], "Turkey",
+            ["var", "n"]
+          ]
+        ],
+        "text-font": ["Roboto Condensed Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 2, 12, 6, 17]
+      },
+      "paint": {
+        "text-color": "hsl(0, 0%, 15%)",
+        "text-halo-color": "hsla(0, 0%, 100%, 0.7)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "territories",
+      "type": "symbol",
+      "source": "territory-labels",
+      "minzoom": 5,
+      "maxzoom": 8,
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-font": ["Roboto Condensed Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 2, 12, 6, 17],
+        "text-variable-anchor": ["center", "top", "bottom", "left", "right"],
+        "text-radial-offset": 0.5,
+        "symbol-sort-key": 0
+      },
+      "paint": {
+        "text-color": "hsl(0, 0%, 15%)",
+        "text-halo-color": "hsla(0, 0%, 100%, 0.7)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "hawaii",
+      "type": "symbol",
+      "source": "hawaii-label",
+      "minzoom": 3,
+      "maxzoom": 8,
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Roboto Condensed Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 12, 6, 16, 8, 17],
+        "text-max-width": 7
+      },
+      "paint": {
+        "text-color": "hsla(0, 0%, 20%, 0.55)",
+        "text-halo-color": "hsla(0, 0%, 100%, 0.6)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "states",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "filter": [
+        "all",
+        ["in", ["get", "class"], ["literal", ["state", "region"]]],
+        ["in",
+          ["coalesce", ["get", "name:en"], ["get", "name"]],
+          ["literal", [
+            "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+            "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Hawai'i", "Idaho",
+            "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+            "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+            "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
+            "New Hampshire", "New Jersey", "New Mexico", "New York",
+            "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+            "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+            "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+            "West Virginia", "Wisconsin", "Wyoming", "District of Columbia", "Hawai’i", "Ontario",
+            "Quebec", "Nova Scotia", "Prince Edward Island", "Manitoba", "Newfoundland and Labrador",
+            "Nunavut", "Northwest Territories", "Saskatchewan", "Alberta", "British Columbia",
+            "Yukon", "New Brunswick"
+          ]]
+        ]
+      ],
+      "minzoom": 3,
+      "maxzoom": 8,
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Roboto Condensed Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 12, 6, 16, 8, 17],
+        "text-max-width": 7
+      },
+      "paint": {
+        "text-color": "hsla(0, 0%, 20%, 0.55)",
+        "text-halo-color": "hsla(0, 0%, 100%, 0.6)",
+        "text-halo-width": 1.5
+      }
+    }
+
+  ]
+}

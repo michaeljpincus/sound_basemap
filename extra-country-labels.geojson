@@ -1,0 +1,7 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "Palestine" }, "geometry": { "type": "Point", "coordinates": [34.977, 31.55] } }
+  ]
+}
+

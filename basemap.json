@@ -1,0 +1,853 @@
+{
+  "version": 8,
+  "projection": { "type": "globe" },
+  "sky": {
+    "sky-color": "#0a1a33",
+    "horizon-color": "#3b6ea5",
+    "fog-color": "#0b0d10",
+    "sky-horizon-blend": 0.6,
+    "horizon-fog-blend": 0.5,
+    "fog-ground-blend": 0.5,
+    "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 5, 1, 7, 0]
+  },
+  "glyphs": "https://michaeljpincus.github.io/basemap/{fontstack}/{range}.pbf",
+  "sprite": "https://michaeljpincus.github.io/basemap/sprites/sprite",
+  "sources": {
+    "terrain": {
+      "type": "raster-dem",
+      "tiles": ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+      "encoding": "terrarium",
+      "tileSize": 256,
+      "maxzoom": 15,
+      "attribution": "Terrain: Mapzen/AWS Terrain Tiles"
+    },
+    "base": {
+      "type": "vector",
+      "url": "https://tiles.openfreemap.org/planet",
+      "attribution": "&copy; <a href=\"https://openfreemap.org\">OpenFreeMap</a> &copy; OpenMapTiles, data &copy; OpenStreetMap contributors"
+    },
+    "adm1-borders": {
+      "type": "geojson",
+      "data": "https://michaeljpincus.github.io/basemap/stateborders.geojson",
+      "generateId": true
+    },
+    "uk-borders": {
+      "type": "geojson",
+      "data": "https://michaeljpincus.github.io/basemap/uk_borders.geojson",
+      "generateId": true
+    },
+    "extra-adm1-labels": {
+      "type": "geojson",
+      "data": "https://michaeljpincus.github.io/basemap/extra-adm1.geojson",
+      "generateId": true
+    },
+    "extra-country-labels": {
+      "type": "geojson",
+      "data": "https://michaeljpincus.github.io/basemap/extra-country-labels.geojson",
+      "generateId": true
+    },
+    "territory-labels": {
+      "type": "geojson",
+      "data": "https://michaeljpincus.github.io/basemap/territories.geojson"
+    },
+    "uk-label": {
+      "type": "geojson",
+      "data": "https://michaeljpincus.github.io/basemap/uk.geojson"
+    },
+    "westbank": {
+      "type": "geojson",
+      "data": "https://michaeljpincus.github.io/basemap/westbank.geojson"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": { "background-color": "#23242b" }
+    },
+    {
+      "id": "hillshade",
+      "type": "hillshade",
+      "source": "terrain",
+      "paint": {
+        "hillshade-exaggeration": ["interpolate", ["linear"], ["zoom"], 3, 0.15, 8, 0.25, 12, 0.25],
+        "hillshade-shadow-color": "hsl(215, 15%, 3%)",
+        "hillshade-highlight-color": "hsl(215, 8%, 40%)",
+        "hillshade-accent-color": "hsl(215, 10%, 12%)",
+        "hillshade-illumination-direction": 315
+      }
+    },
+    {
+      "id": "urban-areas",
+      "type": "fill",
+      "source": "base",
+      "source-layer": "landuse",
+      "minzoom": 6,
+      "paint": {
+        "fill-color": "#2f313b",
+        "fill-opacity": ["interpolate", ["linear"], ["zoom"], 3, 0.9, 12, 0.6, 15, 0.3]
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "base",
+      "source-layer": "water",
+      "paint": { "fill-color": "#14171b" }
+    },
+    {
+      "id": "waterway",
+      "type": "line",
+      "source": "base",
+      "source-layer": "waterway",
+      "minzoom": 7,
+      "paint": {
+        "line-color": "#14171b",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 7, 0.4, 12, 1.5]
+      }
+    },
+    {
+      "id": "country-borders",
+      "type": "line",
+      "source": "base",
+      "source-layer": "boundary",
+      "filter": ["all", ["==", ["get", "admin_level"], 2], ["==", ["get", "maritime"], 0]],
+      "paint": {
+        "line-color": "#9297a0",
+        "line-width": 0.5
+      }
+    },
+    {
+      "id": "uk-borders",
+      "type": "line",
+      "source": "uk-borders",
+      "minzoom": 4,
+      "layout": {
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "#777c84",
+        "line-width": 1,
+        "line-dasharray": [0, 3]
+      }
+    },
+    {
+      "id": "adm1-borders",
+      "type": "line",
+      "source": "adm1-borders",
+      "minzoom": 5,
+      "layout": {
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "#777c84",
+        "line-width": 1,
+        "line-dasharray": [0, 3]
+      }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "base",
+      "source-layer": "transportation",
+      "minzoom": 1,
+      "filter": ["in", ["get", "class"], ["literal", ["motorway", "trunk", "primary"]]],
+      "paint": {
+        "line-color": "#444950",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.3, 10, 1]
+      }
+    },
+    {
+      "id": "streets-minor",
+      "type": "line",
+      "source": "base",
+      "source-layer": "transportation",
+      "minzoom": 12,
+      "filter": ["in", ["get", "class"], ["literal", ["secondary", "tertiary", "minor"]]],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#41454c",
+        "line-width": ["interpolate", ["exponential", 1.4], ["zoom"], 12, 0.4, 16, 3, 20, 14]
+      }
+    },
+    {
+      "id": "streets-service",
+      "type": "line",
+      "source": "base",
+      "source-layer": "transportation",
+      "minzoom": 15,
+      "filter": ["==", ["get", "class"], "service"],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#3a3e44",
+        "line-width": ["interpolate", ["exponential", 1.4], ["zoom"], 15, 0.5, 20, 6]
+      }
+    },
+    {
+      "id": "neighborhoods",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "minzoom": 7,
+      "filter": ["in", ["get", "class"], ["literal", ["suburb", "quarter", "neighbourhood"]]],
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.1,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 11, 10, 15, 13],
+        "text-max-width": 6,
+        "symbol-sort-key": ["coalesce", ["get", "rank"], 99]
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 58%, 0.5)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.8)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "city-dots-major",
+      "type": "circle",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["all",
+        ["in", ["get", "class"], ["literal", ["city", "town"]]],
+        ["!=", ["get", "capital"], 2],
+        ["<=", ["coalesce", ["get", "rank"], 99], 3]
+      ],
+      "minzoom": 4,
+      "maxzoom": 9,
+      "paint": {
+        "circle-color": "#b4b8be",
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.5, 8, 2.5, 12, 3],
+        "circle-stroke-color": "#2a2e34",
+        "circle-stroke-width": 0.75
+      }
+    },
+    {
+      "id": "city-dots-medium",
+      "type": "circle",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["all",
+        ["in", ["get", "class"], ["literal", ["city", "town"]]],
+        ["!=", ["get", "capital"], 2],
+        [">", ["coalesce", ["get", "rank"], 99], 3],
+        ["<=", ["coalesce", ["get", "rank"], 99], 6]
+      ],
+      "minzoom": 6,
+      "maxzoom": 9,
+      "paint": {
+        "circle-color": "#b4b8be",
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.5, 8, 2.5, 12, 3],
+        "circle-stroke-color": "#2a2e34",
+        "circle-stroke-width": 0.75
+      }
+    },
+    {
+      "id": "city-dots-minor",
+      "type": "circle",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["all",
+        ["in", ["get", "class"], ["literal", ["city", "town"]]],
+        ["!=", ["get", "capital"], 2],
+        [">", ["coalesce", ["get", "rank"], 99], 6]
+      ],
+      "minzoom": 8,
+      "maxzoom": 9,
+      "paint": {
+        "circle-color": "#b4b8be",
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.5, 8, 2.5, 12, 3],
+        "circle-stroke-color": "#2a2e34",
+        "circle-stroke-width": 0.75
+      }
+    },
+    {
+      "id": "cities-major",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["all",
+        ["in", ["get", "class"], ["literal", ["city", "town"]]],
+        ["any",
+          ["==", ["get", "capital"], 2],
+          ["<=", ["coalesce", ["get", "rank"], 99], 3]
+        ]
+      ],
+      "minzoom": 4,
+      "maxzoom": 14,
+      "layout": {
+        "icon-image": ["case", ["==", ["get", "capital"], 2], "star", ""],
+        "icon-size": ["interpolate", ["linear"], ["zoom"], 4, 0.5, 8, 0.7, 9, 0.7, 9.01, 0],
+        "icon-optional": true,
+        "text-optional": true,
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-size": [
+          "interpolate", ["linear"], ["zoom"],
+          4,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 15, 8, 10],
+          8,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 19, 8, 12],
+          12, ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 22, 8, 14]
+        ],
+        "text-variable-anchor": ["top", "bottom", "left", "right"],
+        "text-radial-offset": ["case", ["==", ["get", "capital"], 2], 0.8, 0.5],
+        "symbol-sort-key": ["coalesce", ["get", "rank"], 99]
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 66%, 0.75)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.8)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "cities-medium",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["all",
+        ["in", ["get", "class"], ["literal", ["city", "town"]]],
+        ["!=", ["get", "capital"], 2],
+        [">", ["coalesce", ["get", "rank"], 99], 3],
+        ["<=", ["coalesce", ["get", "rank"], 99], 6]
+      ],
+      "minzoom": 6,
+      "maxzoom": 14,
+      "layout": {
+        "icon-optional": true,
+        "text-optional": true,
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-size": [
+          "interpolate", ["linear"], ["zoom"],
+          4,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 15, 8, 10],
+          8,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 19, 8, 12],
+          12, ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 22, 8, 14]
+        ],
+        "text-variable-anchor": ["top", "bottom", "left", "right"],
+        "text-radial-offset": 0.5,
+        "symbol-sort-key": ["coalesce", ["get", "rank"], 99]
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 66%, 0.75)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.8)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "cities-minor",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["all",
+        ["in", ["get", "class"], ["literal", ["city", "town"]]],
+        ["!=", ["get", "capital"], 2],
+        [">", ["coalesce", ["get", "rank"], 99], 6]
+      ],
+      "minzoom": 8,
+      "maxzoom": 14,
+      "layout": {
+        "icon-optional": true,
+        "text-optional": true,
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-size": [
+          "interpolate", ["linear"], ["zoom"],
+          4,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 15, 8, 10],
+          8,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 19, 8, 12],
+          12, ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 22, 8, 14]
+        ],
+        "text-variable-anchor": ["top", "bottom", "left", "right"],
+        "text-radial-offset": 0.5,
+        "symbol-sort-key": ["coalesce", ["get", "rank"], 99]
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 66%, 0.75)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.8)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "adm1",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "filter": [
+        "all",
+        ["!=", ["coalesce", ["get", "name:en"], ["get", "name"]], "Amazonas"],
+        ["!=", ["coalesce", ["get", "name:en"], ["get", "name"]], "Punjab"],
+        ["in", ["get", "class"], ["literal", ["state", "territory", "region"]]],
+        ["in",
+          ["coalesce", ["get", "name:en"], ["get", "name"]],
+          ["literal", [
+            "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+            "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Hawai'i", "Idaho",
+            "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+            "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+            "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
+            "New Hampshire", "New Jersey", "New Mexico", "New York",
+            "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+            "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+            "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+            "West Virginia", "Wisconsin", "Wyoming", "District of Columbia", "Hawai’i", "Ontario",
+            "Quebec", "Nova Scotia", "Prince Edward Island", "Manitoba", "Newfoundland and Labrador",
+            "Nunavut", "Northwest Territories", "Saskatchewan", "Alberta", "British Columbia",
+            "Yukon", "New Brunswick", "Acre", "Alagoas", "Amapá", "Amapa", "Amazonas", "Bahia", "Ceará", "Ceara", "Distrito Federal",
+            "Espírito Santo", "Espirito Santo", "Goiás", "Goias", "Maranhão", "Maranhao", "Mato Grosso",
+            "Mato Grosso do Sul", "Minas Gerais", "Pará", "Para", "Paraíba", "Paraiba", "Paraná", "Parana",
+            "Pernambuco", "Piauí", "Piaui", "Rio de Janeiro", "Rio Grande do Norte", "Rio Grande do Sul",
+            "Rondônia", "Rondonia", "Roraima", "Santa Catarina", "São Paulo", "Sao Paulo", "Sergipe", "Tocantins",
+
+            "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana",
+            "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+            "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Orissa", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+            "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Delhi", "Jammu and Kashmir",
+            "Ladakh", "Puducherry", "Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep",
+            "Dadra and Nagar Haveli and Daman and Diu",
+
+            "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua",
+            "Coahuila", "Colima", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "Michoacán", "Michoacan",
+            "Morelos", "Nayarit", "Nuevo León", "Nuevo Leon", "Oaxaca", "Puebla", "Querétaro", "Queretaro",
+            "Quintana Roo", "San Luis Potosí", "San Luis Potosi", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas",
+            "Tlaxcala", "Veracruz", "Yucatán", "Yucatan", "Zacatecas", "Mexico City", "State of Mexico", "México",
+            "Estado de México",
+
+            "New South Wales", "Victoria", "Queensland", "South Australia", "Western Australia", "Tasmania",
+            "Northern Territory", "Australian Capital Territory",
+
+            "Anhui", "Beijing", "Chongqing City", "Fujian", "Gansu", "Guangdong", "Guangxi", "Guizhou", "Hainan", "Hebei",
+            "Heilongjiang", "Henan", "Hubei", "Hunan", "Inner Mongolia", "Jiangsu", "Jiangxi", "Jilin", "Liaoning",
+            "Ningxia", "Qinghai", "Shaanxi", "Shandong", "Shanghai", "Shanxi", "Sichuan", "Tianjin", "Tibet", "Xizang",
+            "Xinjiang", "Yunnan", "Zhejiang", "Anhui Province", "Fujian Province", "Gansu Province", "Guangdong Province", "Guizhou Province",
+            "Hainan Province", "Hebei Province", "Heilongjiang Province", "Henan Province", "Hubei Province",
+            "Hunan Province", "Jiangsu Province", "Jiangxi Province", "Jilin Province", "Liaoning Province",
+            "Qinghai Province", "Shaanxi Province", "Shandong Province", "Shanxi Province", "Sichuan Province",
+            "Yunnan Province", "Zhejiang Province",
+            "Inner Mongolia Autonomous Region", "Guangxi Zhuang Autonomous Region",
+            "Ningxia Hui Autonomous Region", "Xinjiang Uyghur Autonomous Region", "Tibet Autonomous Region",
+            "Beijing Municipality", "Shanghai Municipality", "Tianjin Municipality", "Chongqing Municipality"
+          ]]
+        ]
+      ],
+      "minzoom": 5,
+      "maxzoom": 8,
+      "layout": {
+        "text-field": [
+          "step", ["zoom"],
+          ["match", ["coalesce", ["get", "name:en"], ["get", "name"]],
+            "Alabama", "AL",
+            "Alaska", "AK",
+            "Arizona", "AZ",
+            "Arkansas", "AR",
+            "California", "CA",
+            "Colorado", "CO",
+            "Connecticut", "CT",
+            "Delaware", "DE",
+            "Florida", "FL",
+            "Georgia", "GA",
+            ["Hawaii", "Hawai'i", "Hawai’i"], "HI",
+            "Idaho", "ID",
+            "Illinois", "IL",
+            "Indiana", "IN",
+            "Iowa", "IA",
+            "Kansas", "KS",
+            "Kentucky", "KY",
+            "Louisiana", "LA",
+            "Maine", "ME",
+            "Maryland", "MD",
+            "Massachusetts", "MA",
+            "Michigan", "MI",
+            "Minnesota", "MN",
+            "Mississippi", "MS",
+            "Missouri", "MO",
+            "Montana", "MT",
+            "Nebraska", "NE",
+            "Nevada", "NV",
+            "New Hampshire", "NH",
+            "New Jersey", "NJ",
+            "New Mexico", "NM",
+            "New York", "NY",
+            "North Carolina", "NC",
+            "North Dakota", "ND",
+            "Ohio", "OH",
+            "Oklahoma", "OK",
+            "Oregon", "OR",
+            "Pennsylvania", "PA",
+            "Rhode Island", "RI",
+            "South Carolina", "SC",
+            "South Dakota", "SD",
+            "Tennessee", "TN",
+            "Texas", "TX",
+            "Utah", "UT",
+            "Vermont", "VT",
+            "Virginia", "VA",
+            "Washington", "WA",
+            "West Virginia", "WV",
+            "Wisconsin", "WI",
+            "Wyoming", "WY",
+            "District of Columbia", "DC",
+            "Ontario", "ON",
+            "Quebec", "QC",
+            "Nova Scotia", "NS",
+            "Prince Edward Island", "PE",
+            "Manitoba", "MB",
+            "Newfoundland and Labrador", "NL",
+            "Nunavut", "NU",
+            "Northwest Territories", "NT",
+            "Saskatchewan", "SK",
+            "Alberta", "AB",
+            "British Columbia", "BC",
+            "Yukon", "YT",
+            "New Brunswick", "NB",
+            "Acre", "AC",
+            "Alagoas", "AL",
+            ["Amapá", "Amapa"], "AP",
+            "Amazonas", "AM",
+            "Bahia", "BA",
+            ["Ceará", "Ceara"], "CE",
+            "Distrito Federal", "DF",
+            ["Espírito Santo", "Espirito Santo"], "ES",
+            ["Goiás", "Goias"], "GO",
+            ["Maranhão", "Maranhao"], "MA",
+            "Mato Grosso", "MT",
+            "Mato Grosso do Sul", "MS",
+            "Minas Gerais", "MG",
+            ["Pará", "Para"], "PA",
+            ["Paraíba", "Paraiba"], "PB",
+            ["Paraná", "Parana"], "PR",
+            "Pernambuco", "PE",
+            ["Piauí", "Piaui"], "PI",
+            "Rio de Janeiro", "RJ",
+            "Rio Grande do Norte", "RN",
+            "Rio Grande do Sul", "RS",
+            ["Rondônia", "Rondonia"], "RO",
+            "Roraima", "RR",
+            "Santa Catarina", "SC",
+            ["São Paulo", "Sao Paulo"], "SP",
+            "Sergipe", "SE",
+            "Tocantins", "TO",
+
+            "Andhra Pradesh", "AP",
+            "Arunachal Pradesh", "AR",
+            "Assam", "AS",
+            "Bihar", "BR",
+            "Chhattisgarh", "CG",
+            "Goa", "GA",
+            "Gujarat", "GJ",
+            "Haryana", "HR",
+            "Himachal Pradesh", "HP",
+            "Jharkhand", "JH",
+            "Karnataka", "KA",
+            "Kerala", "KL",
+            "Madhya Pradesh", "MP",
+            "Maharashtra", "MH",
+            "Manipur", "MN",
+            "Meghalaya", "ML",
+            "Mizoram", "MZ",
+            "Nagaland", "NL",
+            ["Odisha", "Orissa"], "OD",
+            "Punjab", "PB",
+            "Rajasthan", "RJ",
+            "Sikkim", "SK",
+            "Tamil Nadu", "TN",
+            "Telangana", "TG",
+            "Tripura", "TR",
+            "Uttar Pradesh", "UP",
+            "Uttarakhand", "UK",
+            "West Bengal", "WB",
+            "Delhi", "DL",
+            "Jammu and Kashmir", "JK",
+            "Ladakh", "LA",
+            "Puducherry", "PY",
+            "Chandigarh", "CH",
+            "Andaman and Nicobar Islands", "AN",
+            "Lakshadweep", "LD",
+            "Dadra and Nagar Haveli and Daman and Diu", "DD",
+
+            "Aguascalientes", "AGU",
+            "Baja California", "BCN",
+            "Baja California Sur", "BCS",
+            "Campeche", "CAM",
+            "Chiapas", "CHP",
+            "Chihuahua", "CHH",
+            "Coahuila", "COA",
+            "Colima", "COL",
+            "Durango", "DUR",
+            "Guanajuato", "GUA",
+            "Guerrero", "GRO",
+            "Hidalgo", "HID",
+            "Jalisco", "JAL",
+            ["Michoacán", "Michoacan"], "MIC",
+            "Morelos", "MOR",
+            "Nayarit", "NAY",
+            ["Nuevo León", "Nuevo Leon"], "NLE",
+            "Oaxaca", "OAX",
+            "Puebla", "PUE",
+            ["Querétaro", "Queretaro"], "QUE",
+            "Quintana Roo", "ROO",
+            ["San Luis Potosí", "San Luis Potosi"], "SLP",
+            "Sinaloa", "SIN",
+            "Sonora", "SON",
+            "Tabasco", "TAB",
+            "Tamaulipas", "TAM",
+            "Tlaxcala", "TLA",
+            "Veracruz", "VER",
+            ["Yucatán", "Yucatan"], "YUC",
+            "Zacatecas", "ZAC",
+            "Mexico City", "CMX",
+            ["State of Mexico", "México", "Estado de México"], "MEX",
+
+            "New South Wales", "NSW",
+            "Victoria", "VIC",
+            "Queensland", "QLD",
+            "South Australia", "SA",
+            "Western Australia", "WA",
+            "Tasmania", "TAS",
+            "Northern Territory", "NT",
+            "Australian Capital Territory", "ACT",
+
+            "Anhui", "AH",
+            "Beijing", "BJ",
+            "Chongqing City", "CQ",
+            "Fujian", "FJ",
+            "Gansu", "GS",
+            "Guangdong", "GD",
+            "Guangxi", "GX",
+            "Guizhou", "GZ",
+            "Hainan", "HI",
+            "Hebei", "HE",
+            "Heilongjiang", "HL",
+            "Henan", "HA",
+            "Hubei", "HB",
+            "Hunan", "HN",
+            "Inner Mongolia", "NM",
+            "Jiangsu", "JS",
+            "Jiangxi", "JX",
+            "Jilin", "JL",
+            "Liaoning", "LN",
+            "Ningxia", "NX",
+            "Qinghai", "QH",
+            "Shaanxi", "SN",
+            "Shandong", "SD",
+            "Shanghai", "SH",
+            "Shanxi", "SX",
+            "Sichuan", "SC",
+            "Tianjin", "TJ",
+            ["Tibet", "Xizang"], "XZ",
+            "Xinjiang", "XJ",
+            "Yunnan", "YN",
+            "Zhejiang", "ZJ",
+            ["Anhui Province"], "AH",
+            "Fujian Province", "FJ",
+            "Gansu Province", "GS",
+            "Guangdong Province", "GD",
+            "Guizhou Province", "GZ",
+            "Hainan Province", "HI",
+            "Hebei Province", "HE",
+            "Heilongjiang Province", "HL",
+            "Henan Province", "HA",
+            "Hubei Province", "HB",
+            "Hunan Province", "HN",
+            "Jiangsu Province", "JS",
+            "Jiangxi Province", "JX",
+            "Jilin Province", "JL",
+            "Liaoning Province", "LN",
+            "Qinghai Province", "QH",
+            "Shaanxi Province", "SN",
+            "Shandong Province", "SD",
+            "Shanxi Province", "SX",
+            "Sichuan Province", "SC",
+            "Yunnan Province", "YN",
+            "Zhejiang Province", "ZJ",
+            "Inner Mongolia Autonomous Region", "NM",
+            "Guangxi Zhuang Autonomous Region", "GX",
+            "Ningxia Hui Autonomous Region", "NX",
+            "Xinjiang Uyghur Autonomous Region", "XJ",
+            "Tibet Autonomous Region", "XZ",
+            "Beijing Municipality", "BJ",
+            "Shanghai Municipality", "SH",
+            "Tianjin Municipality", "TJ",
+            "Chongqing Municipality", "CQ",
+            ["coalesce", ["get", "name:en"], ["get", "name"]]
+          ],
+          4,
+          [
+            "let", "n", ["coalesce", ["get", "name:en"], ["get", "name"]],
+            [
+              "case",
+              [">", ["index-of", " Zhuang Autonomous Region", ["var", "n"]], 0],
+              ["slice", ["var", "n"], 0, ["index-of", " Zhuang Autonomous Region", ["var", "n"]]],
+
+              [">", ["index-of", " Hui Autonomous Region", ["var", "n"]], 0],
+              ["slice", ["var", "n"], 0, ["index-of", " Hui Autonomous Region", ["var", "n"]]],
+
+              [">", ["index-of", " Uyghur Autonomous Region", ["var", "n"]], 0],
+              ["slice", ["var", "n"], 0, ["index-of", " Uyghur Autonomous Region", ["var", "n"]]],
+
+              [">", ["index-of", " Autonomous Region", ["var", "n"]], 0],
+              ["slice", ["var", "n"], 0, ["index-of", " Autonomous Region", ["var", "n"]]],
+
+              [">", ["index-of", " Municipality", ["var", "n"]], 0],
+              ["slice", ["var", "n"], 0, ["index-of", " Municipality", ["var", "n"]]],
+
+              [">", ["index-of", " Province", ["var", "n"]], 0],
+              ["slice", ["var", "n"], 0, ["index-of", " Province", ["var", "n"]]],
+
+              ["var", "n"]
+            ]
+          ]
+        ],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 12, 6, 16, 8, 17],
+        "text-max-width": 7
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 55%, 0.4)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.7)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "extra-adm1-labels",
+      "type": "symbol",
+      "source": "extra-adm1-labels",
+      "minzoom": 5,
+      "maxzoom": 8,
+      "layout": {
+        "text-field": ["step", ["zoom"], ["get", "abbr"], 4, ["get", "name"]],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 12, 6, 16, 8, 17],
+        "text-max-width": 7
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 55%, 0.4)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.7)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "uk",
+      "type": "symbol",
+      "source": "uk-label",
+      "minzoom": 2,
+      "maxzoom": 8,
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 12, 6, 16, 8, 17],
+        "text-max-width": 7
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 55%, 0.4)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.7)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "countries",
+      "type": "symbol",
+      "source": "base",
+      "source-layer": "place",
+      "filter": ["==", ["get", "class"], "country"],
+      "maxzoom": 8,
+      "layout": {
+        "text-field": [
+          "let", "n", ["coalesce", ["get", "name:en"], ["get", "name"]],
+          ["match", ["var", "n"],
+            ["Palestinian Territories", "State of Palestine"], " ",
+            ["T"], "Turkey",
+            ["San Marino"], " ",
+            ["Vatican City"], " ",
+            ["Monaco"], " ",
+            ["Luxembourg"], " ",
+            ["Guernsey"], " ",
+            ["Jersey"], " ",
+            ["Isle of Man"], " ",
+            ["Gibraltar"], " ",
+            ["Russia"], "Russian Federation",
+            ["var", "n"]
+          ]
+        ],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 2, 12, 6, 17]
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 70%, 0.6)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.8)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "territories",
+      "type": "symbol",
+      "source": "territory-labels",
+      "minzoom": 5,
+      "maxzoom": 8,
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 2, 12, 6, 17],
+        "text-variable-anchor": ["center", "top", "bottom", "left", "right"],
+        "text-radial-offset": 0.5,
+        "symbol-sort-key": 0
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 70%, 0.6)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.8)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "extra-country-labels",
+      "type": "symbol",
+      "source": "extra-country-labels",
+      "minzoom": 2,
+      "maxzoom": 8,
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 2, 12, 6, 17],
+        "text-variable-anchor": ["center", "top", "bottom", "left", "right"],
+        "text-radial-offset": 0.5,
+        "symbol-sort-key": 0
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 70%, 0.6)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.8)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "westbank",
+      "type": "symbol",
+      "source": "westbank",
+      "minzoom": 6,
+      "maxzoom": 10,
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Helvetica Neue Regular"],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.18,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 12, 6, 16, 8, 17],
+        "text-max-width": 7
+      },
+      "paint": {
+        "text-color": "hsla(215, 6%, 55%, 0.4)",
+        "text-halo-color": "hsla(215, 12%, 16%, 0.7)",
+        "text-halo-width": 1.5
+      }
+    }
+  ]
+}
