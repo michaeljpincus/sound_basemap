@@ -10,7 +10,7 @@
     "fog-ground-blend": 0.5,
     "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 5, 1, 7, 0]
   },
-  "glyphs": "https://michaeljpincus.github.io/basemap/{fontstack}/{range}.pbf",
+  "glyphs": "https://michaeljpincus.github.io/basemap/fonts/{fontstack}/{range}.pbf",
   "sprite": "https://michaeljpincus.github.io/basemap/sprites/sprite",
   "sources": {
     "terrain": {
