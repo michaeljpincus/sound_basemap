@@ -192,9 +192,8 @@
       "filter": ["in", ["get", "class"], ["literal", ["suburb", "quarter", "neighbourhood"]]],
       "layout": {
         "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
-        "text-font": ["Helvetica Neue Regular"],
+        "text-font": ["EB Garamond Regular"],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.1,
         "text-size": ["interpolate", ["linear"], ["zoom"], 11, 10, 15, 13],
         "text-max-width": 6,
         "symbol-sort-key": ["coalesce", ["get", "rank"], 99]
@@ -212,8 +211,10 @@
       "source-layer": "place",
       "filter": ["all",
         ["in", ["get", "class"], ["literal", ["city", "town"]]],
-        ["!=", ["get", "capital"], 2],
-        ["<=", ["coalesce", ["get", "rank"], 99], 3]
+        ["any",
+          ["==", ["get", "capital"], 2],
+          ["<=", ["coalesce", ["get", "rank"], 99], 3]
+        ]
       ],
       "minzoom": 4,
       "maxzoom": 9,
@@ -278,12 +279,9 @@
       "minzoom": 4,
       "maxzoom": 14,
       "layout": {
-        "icon-image": ["case", ["==", ["get", "capital"], 2], "star", ""],
-        "icon-size": ["interpolate", ["linear"], ["zoom"], 4, 0.5, 8, 0.7, 9, 0.7, 9.01, 0],
-        "icon-optional": true,
         "text-optional": true,
         "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
-        "text-font": ["Helvetica Neue Regular"],
+        "text-font": ["EB Garamond Regular"],
         "text-size": [
           "interpolate", ["linear"], ["zoom"],
           4,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 12, 8, 12],
@@ -291,7 +289,7 @@
           12, ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 12, 8, 12]
         ],
         "text-variable-anchor": ["top", "bottom", "left", "right"],
-        "text-radial-offset": ["case", ["==", ["get", "capital"], 2], 0.8, 0.5],
+        "text-radial-offset": 0.5,
         "symbol-sort-key": ["coalesce", ["get", "rank"], 99]
       },
       "paint": {
@@ -317,7 +315,7 @@
         "icon-optional": true,
         "text-optional": true,
         "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
-        "text-font": ["Helvetica Neue Regular"],
+        "text-font": ["EB Garamond Regular"],
         "text-size": [
           "interpolate", ["linear"], ["zoom"],
           4,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 12, 8, 12],
@@ -350,7 +348,7 @@
         "icon-optional": true,
         "text-optional": true,
         "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
-        "text-font": ["Helvetica Neue Regular"],
+        "text-font": ["EB Garamond Regular"],
         "text-size": [
           "interpolate", ["linear"], ["zoom"],
           4,  ["interpolate", ["linear"], ["coalesce", ["get", "rank"], 99], 1, 12, 8, 12],
@@ -697,9 +695,8 @@
             ]
           ]
         ],
-        "text-font": ["Helvetica Neue Regular"],
+        "text-font": ["Hevetica Neue Regular"],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.18,
         "text-size": ["interpolate", ["linear"], ["zoom"], 3, 8, 6, 10, 8, 12],
         "text-max-width": 7
       },
@@ -717,9 +714,8 @@
       "maxzoom": 8,
       "layout": {
         "text-field": ["step", ["zoom"], ["get", "abbr"], 4, ["get", "name"]],
-        "text-font": ["Helvetica Neue Regular"],
+        "text-font": ["EB Garamond Regular"],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.18,
         "text-size": ["interpolate", ["linear"], ["zoom"], 3, 8, 6, 10, 8, 12],
         "text-max-width": 7
       },
@@ -739,8 +735,8 @@
         "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
         "text-font": ["Helvetica Neue Regular"],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.18,
-        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 12, 6, 16, 8, 17],
+        "text-letter-spacing": 0,
+        "text-size": 9,
         "text-max-width": 7
       },
       "paint": {
@@ -776,7 +772,7 @@
         ],
         "text-font": ["Helvetica Neue Regular"],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.18,
+        "text-letter-spacing": 0,
         "text-size": ["interpolate", ["linear"], ["zoom"], 2, 9, 6, 14]
       },
       "paint": {
@@ -795,7 +791,6 @@
         "text-field": ["get", "name"],
         "text-font": ["Helvetica Neue Regular"],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.18,
         "text-size": ["interpolate", ["linear"], ["zoom"], 2, 8, 6, 14],
         "text-variable-anchor": ["center", "top", "bottom", "left", "right"],
         "text-radial-offset": 0.5,
@@ -817,7 +812,6 @@
         "text-field": ["get", "name"],
         "text-font": ["Helvetica Neue Regular"],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.18,
         "text-size": ["interpolate", ["linear"], ["zoom"], 2, 9, 6, 14],
         "text-variable-anchor": ["center", "top", "bottom", "left", "right"],
         "text-radial-offset": 0.5,
@@ -839,7 +833,6 @@
         "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
         "text-font": ["Helvetica Neue Regular"],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.18,
         "text-size": ["interpolate", ["linear"], ["zoom"], 3, 8, 6, 8, 8, 8],
         "text-max-width": 7
       },
